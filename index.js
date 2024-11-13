@@ -29,10 +29,45 @@ app.get('/download', (req, res) => {
 });
 
 app.get('/download-save', (req, res) => {
-  ytdl('https://www.youtube.com/watch?v=lvs68OKOquM', {
-    quality: 'lowest',
-  }).pipe(fs.createWriteStream('video.mp4'));
+  const videoUrl = 'https://www.youtube.com/watch?v=lvs68OKOquM';
+  const filePath = 'video.mp4';
+
+  // Download and save video file to the server
+  ytdl2(videoUrl, { quality: 'lowest' })
+    .pipe(fs.createWriteStream(filePath))
+    .on('finish', () => {
+      // Send download link to the client
+      res.json({ downloadLink: `http://localhost:4000/download-file` });
+    });
 });
+
+// Endpoint to serve the downloaded file
+app.get('/download-file', (req, res) => {
+  const filePath = 'video.mp4';
+
+  // Use res.download to send the file and delete it afterward
+  res.download(filePath, (err) => {
+    if (err) {
+      console.error('Error sending file:', err);
+      res.status(500).send('Error occurred');
+    } else {
+      // File sent successfully, delete it from the server
+      // fs.unlink(filePath, (unlinkErr) => {
+      //   if (unlinkErr) {
+      //     console.error('Error deleting file:', unlinkErr);
+      //   } else {
+      //     console.log('File deleted successfully');
+      //   }
+      // });
+    }
+  });
+});
+
+// app.get('/download-save', (req, res) => {
+//   ytdl('https://www.youtube.com/watch?v=lvs68OKOquM', {
+//     quality: 'lowest',
+//   }).pipe(fs.createWriteStream('video.mp4'));
+// });
 
 app.get('/download-save-alternative', (req, res) => {
   ytdl2('https://www.youtube.com/watch?v=Q_oBBxPADd8', {
