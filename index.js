@@ -10,7 +10,7 @@ const youtubesearchapi = require('youtube-search-api');
 const ytdl2 = require('@distube/ytdl-core');
 
 const axios = require('axios');
-const jsonpAdapter = require('axios-jsonp');
+// const jsonpAdapter = require('axios-jsonp');
 
 const app = express();
 
@@ -158,25 +158,36 @@ app.get('/search', (req, res) => {
 //   }
 // };
 
+function handleCallback(data) {
+  console.log(data);
+}
+
 app.get('/search-yt', (req, response) => {
-  // jsonp(
-  //   `https://suggestqueries-clients6.youtube.com/complete/search?client=youtube&hl=en&gl=vn&gs_rn=64&gs_ri=youtube&ds=yt&q=${req.query.q}`,
-  //   null,
-  //   function (err, data) {
-  //     if (err) {
-  //       console.error(err.message);
-  //     } else {
-  //       console.log(data);
+  // if (typeof document !== 'undefined') {
+  //   // Safe to use document here
+  // } else {
+  //   // Handle server-side (Node.js) code
+  //   jsonp(
+  //     `https://suggestqueries-clients6.youtube.com/complete/search?client=youtube&hl=en&gl=vn&gs_rn=64&gs_ri=youtube&ds=yt&callback=handleCallback&q=${req.query.q}`,
+  //     null,
+  //     function (err, data) {
+  //       if (error) {
+  //         console.error('Error with JSONP request:', error);
+  //       } else {
+  //         handleCallback(data);
+  //       }
   //     }
-  //   }
-  // );
+  //   );
+  // }
 
   axios({
-    url: `https://suggestqueries-clients6.youtube.com/complete/search?client=youtube&hl=en&gl=vn&gs_rn=64&gs_ri=youtube&ds=yt&q=${req.query.q}`,
+    url: `https://suggestqueries-clients6.youtube.com/complete/search?client=youtube&hl=en&gl=vn&gs_rn=64&gs_ri=youtube&ds=yt&callback=handleCallback&q=${req.query.q}`,
     // adapter: jsonpAdapter,
-    // callbackParamName: 'test', // optional, 'callback' by default
+    // callbackParamName: 'handleCallback', // optional, 'callback' by default
   }).then((res) => {
-    const regex = /window\.google\.ac\.h\(\["[^"]+",\s*(\[\[.*\]\])/s;
+    // const regex = /window\.google\.ac\.h\(\["[^"]+",\s*(\[\[.*\]\])/s
+    const regex =
+      /handleCallback && handleCallback\(\["[^"]+",\s*(\[\[.*\]\])/s;
     const match = res.data.match(regex);
 
     if (match) {
